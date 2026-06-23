@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Butify – Beauty On Demand</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --rose: #C9536A; --rose-light: #F5E6EA; --rose-deep: #8B2A3E;
+    --gold: #C9A96E; --gold-light: #F7F0E6; --cream: #FBF8F5;
+    --charcoal: #1C1A1A; --muted: #6B6568; --white: #FFFFFF;
+    --border: rgba(201,83,106,0.15); --border-gray: #E8E4E1; --success: #2D9B6F;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--charcoal); overflow-x: hidden; }
+
+  /* PAGE VIEWS */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* =================== NAV =================== */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 6%;
+    background: rgba(251,248,245,0.95); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 900; color: var(--rose); letter-spacing: -0.5px; cursor: pointer; }
+  .logo span { color: var(--gold); }
+  nav ul { list-style: none; display: flex; gap: 2.5rem; align-items: center; }
+  nav ul li a { text-decoration: none; color: var(--charcoal); font-size: 0.9rem; font-weight: 500; transition: color 0.2s; cursor: pointer; }
+  nav ul li a:hover { color: var(--rose); }
+  .nav-cta { background: var(--rose) !important; color: var(--white) !important; padding: 0.6rem 1.5rem !important; border-radius: 50px !important; }
+  .nav-cta:hover { background: var(--rose-deep) !important; }
+  .nav-back-btn { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: color 0.2s; background: none; border: none; font-family: 'DM Sans', sans-serif; }
+  .nav-back-btn:hover { color: var(--rose); }
+
+  /* =================== HERO =================== */
+  .hero {
+    min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr;
+    align-items: center; padding: 8rem 6% 5rem; gap: 4rem; position: relative; overflow: hidden;
+  }
+  .hero::before { content: ''; position: absolute; top: -200px; right: -200px; width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle, rgba(201,169,110,0.12) 0%, transparent 70%); pointer-events: none; }
+  .hero::after { content: ''; position: absolute; bottom: -100px; left: -100px; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(201,83,106,0.08) 0%, transparent 70%); pointer-events: none; }
+  .hero-tag { display: inline-flex; align-items: center; gap: 8px; background: var(--rose-light); color: var(--rose-deep); font-size: 0.78rem; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; padding: 0.45rem 1rem; border-radius: 50px; margin-bottom: 1.5rem; }
+  .hero-tag::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--rose); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.3); } }
+  .hero-headline { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 4.5vw, 4rem); font-weight: 900; line-height: 1.1; letter-spacing: -1px; margin-bottom: 1.5rem; }
+  .hero-headline em { font-style: italic; color: var(--rose); }
+  .hero-sub { font-size: 1.1rem; color: var(--muted); line-height: 1.7; max-width: 500px; margin-bottom: 2.5rem; font-weight: 300; }
+  .hero-sub strong { color: var(--charcoal); font-weight: 600; }
+  .cta-group { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+  .btn-primary { display: inline-flex; align-items: center; gap: 10px; background: var(--rose); color: var(--white); padding: 1rem 2.2rem; border-radius: 50px; font-size: 1rem; font-weight: 600; text-decoration: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.25s; box-shadow: 0 8px 30px rgba(201,83,106,0.35); }
+  .btn-primary:hover { background: var(--rose-deep); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(201,83,106,0.45); }
+  .btn-secondary { display: inline-flex; align-items: center; gap: 8px; color: var(--charcoal); font-size: 0.95rem; font-weight: 500; text-decoration: none; padding: 1rem 1.5rem; border: 1.5px solid var(--border); border-radius: 50px; cursor: pointer; background: none; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+  .btn-secondary:hover { border-color: var(--rose); color: var(--rose); }
+  .hero-trust { display: flex; align-items: center; gap: 1rem; margin-top: 2.5rem; }
+  .trust-avatars { display: flex; }
+  .trust-avatars span { width: 36px; height: 36px; border-radius: 50%; border: 2.5px solid var(--cream); background: var(--rose-light); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--rose-deep); margin-left: -10px; }
+  .trust-avatars span:first-child { margin-left: 0; }
+  .trust-text { font-size: 0.85rem; color: var(--muted); line-height: 1.4; }
+  .trust-text strong { display: block; color: var(--charcoal); font-weight: 600; }
+
+  /* PHONE MOCKUP */
+  .hero-visual { position: relative; display: flex; justify-content: center; align-items: center; }
+  .phone-mockup { width: 280px; background: var(--charcoal); border-radius: 40px; padding: 12px; box-shadow: 0 40px 80px rgba(28,26,26,0.25), 0 0 0 1px rgba(255,255,255,0.1); position: relative; z-index: 2; }
+  .phone-screen { background: var(--cream); border-radius: 32px; overflow: hidden; height: 500px; }
+  .phone-status { background: var(--white); padding: 14px 20px 10px; display: flex; justify-content: space-between; font-size: 0.65rem; font-weight: 600; }
+  .phone-header { background: var(--white); padding: 12px 20px 16px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+  .phone-greeting { font-size: 0.68rem; color: var(--muted); margin-bottom: 2px; }
+  .phone-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; }
+  .phone-location { display: flex; align-items: center; gap: 4px; font-size: 0.65rem; color: var(--rose); margin-top: 6px; font-weight: 500; }
+  .phone-body { padding: 14px 16px; }
+  .phone-section-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .service-cards { display: flex; gap: 8px; margin-bottom: 16px; }
+  .service-card { flex: 1; background: var(--white); border-radius: 14px; padding: 10px 8px; text-align: center; border: 1.5px solid transparent; }
+  .service-card.active { border-color: var(--rose); }
+  .service-card .sicon { font-size: 1.2rem; margin-bottom: 4px; }
+  .service-card .sname { font-size: 0.58rem; font-weight: 600; }
+  .beautician-card { background: var(--white); border-radius: 14px; padding: 12px; display: flex; align-items: center; gap: 10px; margin-bottom: 8px; border: 1px solid rgba(0,0,0,0.06); }
+  .b-avatar { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, var(--rose-light), var(--gold-light)); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: var(--rose-deep); flex-shrink: 0; }
+  .b-info { flex: 1; }
+  .b-name { font-size: 0.72rem; font-weight: 700; }
+  .b-service { font-size: 0.62rem; color: var(--muted); margin-top: 1px; }
+  .b-rating { font-size: 0.65rem; font-weight: 700; color: var(--gold); display: flex; align-items: center; gap: 2px; }
+  .b-book { background: var(--rose); color: var(--white); font-size: 0.58rem; font-weight: 700; padding: 5px 10px; border-radius: 20px; flex-shrink: 0; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; }
+  .floating-badge { position: absolute; background: var(--white); border-radius: 16px; padding: 10px 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.12); font-size: 0.78rem; font-weight: 600; z-index: 3; }
+  .fb-1 { top: 40px; right: -30px; display: flex; align-items: center; gap: 8px; animation: float 4s ease-in-out infinite; }
+  .fb-2 { bottom: 80px; left: -40px; display: flex; align-items: center; gap: 8px; animation: float 4s ease-in-out 2s infinite; }
+  .fb-dot { width: 10px; height: 10px; border-radius: 50%; background: #4CAF50; flex-shrink: 0; }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+  /* =================== PROBLEMS =================== */
+  .section-problem { padding: 6rem 6%; background: var(--charcoal); color: var(--white); text-align: center; position: relative; overflow: hidden; }
+  .section-problem::before { content: '"'; position: absolute; top: -60px; left: 5%; font-family: 'Playfair Display', serif; font-size: 30rem; font-weight: 900; color: rgba(255,255,255,0.02); line-height: 1; pointer-events: none; }
+  .eyebrow { display: inline-block; font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 1.2rem; }
+  .section-headline { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 900; line-height: 1.15; max-width: 800px; margin: 0 auto 1.5rem; }
+  .section-headline em { font-style: italic; color: var(--rose); }
+  .section-body { font-size: 1.05rem; color: rgba(255,255,255,0.6); line-height: 1.8; max-width: 600px; margin: 0 auto; font-weight: 300; }
+  .problems-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 4rem; text-align: left; }
+  .problem-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 2rem; transition: all 0.3s; }
+  .problem-card:hover { background: rgba(201,83,106,0.1); border-color: rgba(201,83,106,0.3); transform: translateY(-4px); }
+  .problem-icon { width: 52px; height: 52px; border-radius: 14px; background: rgba(201,83,106,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1.2rem; }
+  .problem-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 0.8rem; color: var(--white); }
+  .problem-text { font-size: 0.9rem; color: rgba(255,255,255,0.55); line-height: 1.7; font-weight: 300; }
+  .problem-resolve { display: inline-flex; align-items: center; gap: 6px; margin-top: 1.2rem; font-size: 0.82rem; font-weight: 600; color: var(--gold); cursor: pointer; background: none; border: none; font-family: 'DM Sans', sans-serif; }
+
+  /* =================== HOW IT WORKS =================== */
+  .section-how { padding: 7rem 6%; background: var(--cream); }
+  .section-how .inner { max-width: 1100px; margin: 0 auto; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+  .how-steps { margin-top: 2.5rem; }
+  .step { display: flex; gap: 1.2rem; margin-bottom: 2rem; align-items: flex-start; }
+  .step-num { width: 42px; height: 42px; border-radius: 50%; background: var(--rose); color: var(--white); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 800; flex-shrink: 0; font-family: 'Playfair Display', serif; }
+  .step-content h4 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .step-content p { font-size: 0.9rem; color: var(--muted); line-height: 1.6; font-weight: 300; }
+  .how-visual { background: var(--white); border-radius: 28px; padding: 2.5rem; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(201,83,106,0.08); }
+  .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .stat-box { background: var(--cream); border-radius: 16px; padding: 1.3rem; text-align: center; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; color: var(--rose); line-height: 1; margin-bottom: 0.3rem; }
+  .stat-label { font-size: 0.78rem; color: var(--muted); }
+  .map-mock { background: linear-gradient(135deg, #F0F8E8, #E8F4F8); border-radius: 16px; height: 140px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; color: var(--muted); position: relative; overflow: hidden; margin-top: 1rem; }
+  .map-pins { position: absolute; inset: 0; }
+  .map-pin { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--rose); border: 2px solid white; box-shadow: 0 3px 8px rgba(201,83,106,0.4); animation: ping 2s ease-in-out infinite; }
+  .map-pin::after { content: ''; position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px; border-radius: 50%; background: var(--rose); opacity: 0.2; animation: ripple 2s ease-out infinite; }
+  @keyframes ping { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+  @keyframes ripple { 0% { transform: scale(1); opacity: 0.3; } 100% { transform: scale(2.5); opacity: 0; } }
+  .map-pin:nth-child(1) { top: 30%; left: 25%; }
+  .map-pin:nth-child(2) { top: 55%; left: 60%; animation-delay: 0.7s; }
+  .map-pin:nth-child(3) { top: 20%; left: 70%; animation-delay: 1.4s; }
+  .map-pin:nth-child(4) { top: 70%; left: 35%; animation-delay: 0.3s; }
+  .map-label { font-size: 0.8rem; font-weight: 600; z-index: 1; }
+
+  /* =================== VALUE =================== */
+  .section-value { padding: 7rem 6%; background: var(--white); }
+  .section-value .inner { max-width: 1100px; margin: 0 auto; }
+  .section-value .header { text-align: center; max-width: 650px; margin: 0 auto 4rem; }
+  .value-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .value-card { background: var(--cream); border-radius: 24px; padding: 2.2rem; transition: all 0.3s; border: 1.5px solid transparent; }
+  .value-card:hover { border-color: var(--rose); transform: translateY(-5px); box-shadow: 0 20px 50px rgba(201,83,106,0.1); }
+  .value-icon { width: 56px; height: 56px; border-radius: 16px; background: var(--rose-light); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 1.4rem; }
+  .value-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 0.8rem; }
+  .value-text { font-size: 0.9rem; color: var(--muted); line-height: 1.7; font-weight: 300; }
+
+  /* =================== PROOF =================== */
+  .section-proof { padding: 7rem 6%; background: var(--rose-light); text-align: center; }
+  .proof-inner { max-width: 1100px; margin: 0 auto; }
+  .reviews-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 4rem; }
+  .review-card { background: var(--white); border-radius: 20px; padding: 2rem; text-align: left; box-shadow: 0 4px 20px rgba(201,83,106,0.08); transition: transform 0.3s; }
+  .review-card:hover { transform: translateY(-4px); }
+  .stars { color: var(--gold); font-size: 1rem; margin-bottom: 1rem; letter-spacing: 2px; }
+  .review-text { font-family: 'Playfair Display', serif; font-style: italic; font-size: 0.98rem; line-height: 1.7; margin-bottom: 1.3rem; }
+  .reviewer { display: flex; align-items: center; gap: 10px; }
+  .reviewer-av { width: 38px; height: 38px; border-radius: 50%; background: var(--rose-light); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 800; color: var(--rose-deep); }
+  .reviewer-name { font-size: 0.85rem; font-weight: 700; }
+  .reviewer-role { font-size: 0.75rem; color: var(--muted); font-weight: 300; }
+
+  /* =================== BEAUTICIAN SECTION =================== */
+  .section-beautician { padding: 7rem 6%; background: var(--cream); }
+  .section-beautician .inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+  .beautician-perks { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 1rem; }
+  .perk { display: flex; align-items: flex-start; gap: 1rem; padding: 1.2rem; background: var(--white); border-radius: 16px; border: 1px solid var(--border); transition: all 0.2s; }
+  .perk:hover { border-color: var(--rose); box-shadow: 0 8px 25px rgba(201,83,106,0.1); }
+  .perk-check { width: 32px; height: 32px; border-radius: 50%; background: var(--rose); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.85rem; flex-shrink: 0; font-weight: 700; }
+  .perk-content h5 { font-weight: 700; font-size: 0.92rem; margin-bottom: 0.2rem; }
+  .perk-content p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; font-weight: 300; }
+  .earnings-card { background: var(--charcoal); border-radius: 28px; padding: 2.5rem; color: var(--white); }
+  .earn-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gold); font-weight: 700; margin-bottom: 0.5rem; }
+  .earn-big { font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 900; line-height: 1; margin-bottom: 0.3rem; }
+  .earn-sub { font-size: 0.85rem; color: rgba(255,255,255,0.5); margin-bottom: 2rem; font-weight: 300; }
+  .earn-row { display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 6px; color: rgba(255,255,255,0.7); }
+  .earn-bar { height: 8px; border-radius: 50px; background: rgba(255,255,255,0.1); overflow: hidden; margin-bottom: 10px; }
+  .earn-fill { height: 100%; border-radius: 50px; background: linear-gradient(to right, var(--rose), var(--gold)); }
+  .earn-btn { display: block; text-align: center; background: var(--rose); color: var(--white); padding: 1rem; border-radius: 50px; font-weight: 700; font-size: 0.95rem; cursor: pointer; border: none; width: 100%; font-family: 'DM Sans', sans-serif; transition: background 0.2s; }
+  .earn-btn:hover { background: var(--rose-deep); }
+
+  /* =================== FINAL CTA =================== */
+  .section-cta { padding: 8rem 6%; background: var(--charcoal); text-align: center; position: relative; overflow: hidden; }
+  .section-cta::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(201,83,106,0.2) 0%, transparent 70%); pointer-events: none; }
+  .cta-inner { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+  .cta-big { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; color: var(--white); line-height: 1.1; margin-bottom: 1.5rem; }
+  .cta-big em { font-style: italic; color: var(--rose); }
+  .cta-sub { font-size: 1rem; color: rgba(255,255,255,0.55); margin-bottom: 3rem; line-height: 1.7; font-weight: 300; }
+  .cta-double { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn-gold { display: inline-flex; align-items: center; gap: 10px; background: var(--gold); color: var(--charcoal); padding: 1.1rem 2.5rem; border-radius: 50px; font-size: 1rem; font-weight: 700; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.25s; box-shadow: 0 8px 30px rgba(201,169,110,0.4); }
+  .btn-gold:hover { background: #B8925A; transform: translateY(-2px); }
+  .btn-outline { display: inline-flex; align-items: center; gap: 10px; background: transparent; color: var(--white); padding: 1.1rem 2.5rem; border-radius: 50px; font-size: 1rem; font-weight: 600; border: 1.5px solid rgba(255,255,255,0.25); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.25s; }
+  .btn-outline:hover { border-color: var(--white); }
+
+  /* =================== FOOTER =================== */
+  footer { background: #111; padding: 3rem 6%; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+  .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 900; color: var(--rose); }
+  .footer-logo span { color: var(--gold); }
+  .footer-links { display: flex; gap: 2rem; list-style: none; }
+  .footer-links a { color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; cursor: pointer; }
+  .footer-links a:hover { color: var(--white); }
+  .footer-copy { font-size: 0.8rem; color: rgba(255,255,255,0.25); font-weight: 300; }
+
+  /* =================== SIGNUP PAGE =================== */
+  #page-signup { padding-top: 65px; }
+  .signup-nav { display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 6%; background: var(--white); border-bottom: 1px solid var(--border-gray); }
+  .signup-wrap { display: grid; grid-template-columns: 1fr 1.4fr; min-height: calc(100vh - 130px); }
+  .left-panel { background: var(--charcoal); padding: 5rem 8%; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
+  .left-panel::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 50%, rgba(201,83,106,0.15) 0%, transparent 60%); pointer-events: none; }
+  .panel-content { position: relative; z-index: 1; }
+  .panel-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(201,169,110,0.15); color: var(--gold); font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 0.45rem 1rem; border-radius: 50px; margin-bottom: 1.8rem; }
+  .panel-headline { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 2.5vw, 2.6rem); font-weight: 900; line-height: 1.15; color: var(--white); margin-bottom: 1.2rem; }
+  .panel-headline em { font-style: italic; color: var(--rose); }
+  .panel-sub { font-size: 0.92rem; color: rgba(255,255,255,0.55); line-height: 1.7; font-weight: 300; margin-bottom: 2.5rem; }
+  .panel-perks { display: flex; flex-direction: column; gap: 1rem; }
+  .panel-perk { display: flex; align-items: center; gap: 12px; font-size: 0.88rem; color: rgba(255,255,255,0.75); }
+  .perk-icon { width: 34px; height: 34px; border-radius: 10px; background: rgba(201,83,106,0.2); display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+  .panel-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 2rem 0; }
+  .panel-stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .panel-stat { background: rgba(255,255,255,0.05); border-radius: 14px; padding: 1rem; text-align: center; border: 1px solid rgba(255,255,255,0.07); }
+  .panel-stat-num { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 900; color: var(--gold); line-height: 1; margin-bottom: 0.3rem; }
+  .panel-stat-label { font-size: 0.72rem; color: rgba(255,255,255,0.4); font-weight: 300; }
+  .right-panel { padding: 3rem 8%; background: var(--cream); overflow-y: auto; }
+
+  /* FORM */
+  .form-header { margin-bottom: 2rem; }
+  .form-eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--rose); margin-bottom: 0.6rem; }
+  .form-title { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem, 2.5vw, 2.2rem); font-weight: 900; line-height: 1.2; margin-bottom: 0.5rem; }
+  .form-subtitle { font-size: 0.9rem; color: var(--muted); font-weight: 300; }
+  .progress-wrap { display: flex; align-items: center; gap: 8px; margin-bottom: 2rem; }
+  .step-pill { font-size: 0.76rem; font-weight: 600; padding: 0.4rem 0.9rem; border-radius: 50px; white-space: nowrap; }
+  .step-pill.active { background: var(--rose); color: var(--white); }
+  .step-pill.done { background: rgba(45,155,111,0.12); color: var(--success); }
+  .step-pill.inactive { background: var(--border-gray); color: var(--muted); }
+  .step-connector { flex: 1; height: 1.5px; background: var(--border-gray); }
+  .form-section { display: none; }
+  .form-section.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .section-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 1.2rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border-gray); }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .field-row.single { grid-template-columns: 1fr; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  label { font-size: 0.82rem; font-weight: 600; letter-spacing: 0.2px; }
+  label .req { color: var(--rose); margin-left: 2px; }
+  input[type="text"], input[type="email"], input[type="tel"], input[type="url"], input[type="number"], select, textarea {
+    width: 100%; padding: 0.75rem 1rem; border: 1.5px solid var(--border-gray); border-radius: 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.92rem; color: var(--charcoal); background: var(--white);
+    transition: border-color 0.2s, box-shadow 0.2s; outline: none; -webkit-appearance: none; appearance: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--rose); box-shadow: 0 0 0 3px rgba(201,83,106,0.1); }
+  input::placeholder, textarea::placeholder { color: #BEB9B6; font-weight: 300; }
+  textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B6568' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem; cursor: pointer; }
+  .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
+  .service-toggle { position: relative; }
+  .service-toggle input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+  .service-toggle label { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 1rem 0.5rem; background: var(--white); border: 1.5px solid var(--border-gray); border-radius: 14px; cursor: pointer; transition: all 0.2s; text-align: center; font-size: 0.78rem; font-weight: 600; color: var(--muted); }
+  .service-toggle label .svc-icon { font-size: 1.5rem; }
+  .service-toggle input:checked + label { border-color: var(--rose); background: var(--rose-light); color: var(--rose-deep); }
+  .service-toggle label:hover { border-color: var(--rose); }
+  .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; margin-bottom: 1rem; }
+  .day-toggle { position: relative; }
+  .day-toggle input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+  .day-toggle label { display: flex; align-items: center; justify-content: center; padding: 0.7rem 0; background: var(--white); border: 1.5px solid var(--border-gray); border-radius: 10px; cursor: pointer; transition: all 0.2s; font-size: 0.75rem; font-weight: 700; color: var(--muted); }
+  .day-toggle input:checked + label { border-color: var(--rose); background: var(--rose); color: var(--white); }
+  .photo-upload { border: 2px dashed var(--border-gray); border-radius: 16px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--white); position: relative; }
+  .photo-upload:hover { border-color: var(--rose); background: var(--rose-light); }
+  .photo-upload input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .upload-text { font-size: 0.85rem; color: var(--muted); }
+  .upload-text strong { color: var(--rose); font-weight: 700; }
+  .rate-wrap { position: relative; }
+  .rate-prefix { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-weight: 700; color: var(--muted); font-size: 0.9rem; pointer-events: none; }
+  .rate-wrap input { padding-left: 2rem; }
+  .social-row { display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem; padding: 0.6rem 1rem; background: var(--white); border: 1.5px solid var(--border-gray); border-radius: 12px; transition: border-color 0.2s; }
+  .social-row:focus-within { border-color: var(--rose); }
+  .social-icon { font-size: 1.1rem; flex-shrink: 0; }
+  .social-row input { border: none; background: transparent; padding: 0; box-shadow: none; font-size: 0.88rem; }
+  .social-row input:focus { box-shadow: none; }
+  .btn-next { display: inline-flex; align-items: center; gap: 10px; background: var(--rose); color: var(--white); padding: 0.95rem 2.2rem; border-radius: 50px; font-size: 0.95rem; font-weight: 700; border: none; cursor: pointer; transition: all 0.25s; box-shadow: 0 8px 25px rgba(201,83,106,0.3); font-family: 'DM Sans', sans-serif; }
+  .btn-next:hover { background: var(--rose-deep); transform: translateY(-2px); }
+  .btn-back-form { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--muted); padding: 0.95rem 1.5rem; border-radius: 50px; font-size: 0.92rem; font-weight: 500; border: 1.5px solid var(--border-gray); cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+  .btn-back-form:hover { border-color: var(--charcoal); color: var(--charcoal); }
+  .btn-row { display: flex; align-items: center; justify-content: space-between; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-gray); }
+  .consent-row { display: flex; align-items: flex-start; gap: 10px; margin-top: 1.2rem; }
+  .consent-row input[type="checkbox"] { width: 18px; height: 18px; min-width: 18px; border: 1.5px solid var(--border-gray); border-radius: 5px; cursor: pointer; margin-top: 2px; accent-color: var(--rose); }
+  .consent-text { font-size: 0.82rem; color: var(--muted); line-height: 1.5; font-weight: 300; }
+  .consent-text a { color: var(--rose); text-decoration: none; font-weight: 500; }
+  .field-hint { font-size: 0.75rem; color: var(--muted); font-weight: 300; margin-top: 2px; }
+  .success-screen { display: none; text-align: center; padding: 3rem 0; animation: fadeIn 0.5s ease; }
+  .success-screen.show { display: block; }
+  .success-icon { width: 80px; height: 80px; border-radius: 50%; background: rgba(45,155,111,0.12); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1.5rem; }
+  .success-title { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; margin-bottom: 0.8rem; }
+  .success-sub { font-size: 0.95rem; color: var(--muted); line-height: 1.7; font-weight: 300; max-width: 400px; margin: 0 auto 2rem; }
+  .next-steps { background: var(--white); border-radius: 20px; padding: 1.5rem; text-align: left; border: 1px solid var(--border-gray); margin-bottom: 2rem; }
+  .next-step-title { font-size: 0.75rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; }
+  .next-step-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 0.8rem; }
+  .ns-num { width: 24px; height: 24px; border-radius: 50%; background: var(--rose-light); color: var(--rose-deep); font-size: 0.72rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .ns-text { font-size: 0.85rem; line-height: 1.5; }
+  .btn-home { display: inline-flex; align-items: center; gap: 8px; background: var(--rose); color: var(--white); padding: 0.9rem 2rem; border-radius: 50px; font-size: 0.95rem; font-weight: 700; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.25s; box-shadow: 0 8px 25px rgba(201,83,106,0.3); }
+  .btn-home:hover { background: var(--rose-deep); transform: translateY(-2px); }
+
+  /* BOOKING PAGE */
+
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; text-align: center; }
+    .hero-visual { display: none; }
+    .cta-group, .hero-trust { justify-content: center; }
+    .problems-grid, .value-grid, .reviews-row { grid-template-columns: 1fr; }
+    .two-col, .section-beautician .inner { grid-template-columns: 1fr; gap: 3rem; }
+    nav ul { display: none; }
+    .signup-wrap { grid-template-columns: 1fr; }
+    .left-panel { display: none; }
+    .services-grid { grid-template-columns: repeat(2, 1fr); }
+    .days-grid { grid-template-columns: repeat(4, 1fr); }
+    .field-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== LANDING PAGE ===================== -->
+<div id="page-landing" class="page active">
+
+<nav>
+  <div class="logo" onclick="showPage('landing')">Buti<span>fy</span></div>
+  <ul>
+    <li><a onclick="scrollToSection('how')">How It Works</a></li>
+    <li><a onclick="scrollToSection('services')">Services</a></li>
+    <li><a onclick="showPage('signup')">For Beauticians</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-tag">Beauty, On Your Terms</div>
+    <h1 class="hero-headline">Stop Rearranging Your Life<br>for a <em>Beauty Appointment</em></h1>
+    <p class="hero-sub">Salon hours. Commute time. Parking stress. <strong>None of that.</strong> Butify connects you with certified beauticians who come to <em>you</em> — your home, your office, wherever. Whenever you need it.</p>
+    <div class="cta-group">
+      <button class="btn-primary" onclick="showPage('signup')">
+        Join as a Beautician
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+      <button class="btn-secondary" onclick="scrollToSection('how')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none"/></svg>
+        See how it works
+      </button>
+    </div>
+    <div class="hero-trust">
+      <div class="trust-avatars"><span>SK</span><span>AM</span><span>JL</span><span>PR</span><span>+</span></div>
+      <div class="trust-text"><strong>2,400+ happy clients</strong>Trusted across the UK</div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="floating-badge fb-1"><div class="fb-dot"></div>Sarah is on her way · 12 min</div>
+    <div class="floating-badge fb-2">⭐ 4.9 · Just rated by Emma</div>
+    <div class="phone-mockup">
+      <div class="phone-screen">
+        <div class="phone-status"><span>9:41</span><span>●●● ▲ ■</span></div>
+        <div class="phone-header">
+          <div class="phone-greeting">Good morning, Emma 👋</div>
+          <div class="phone-title">What are you booking?</div>
+          <div class="phone-location">📍 Manchester, M1 · Change</div>
+        </div>
+        <div class="phone-body">
+          <div class="phone-section-label">Choose a Service</div>
+          <div class="service-cards">
+            <div class="service-card active"><div class="sicon">💅</div><div class="sname">Nails</div></div>
+            <div class="service-card"><div class="sicon">💆</div><div class="sname">Facial</div></div>
+            <div class="service-card"><div class="sicon">💋</div><div class="sname">Makeup</div></div>
+          </div>
+          <div class="phone-section-label">Available Near You</div>
+          <div class="beautician-card">
+            <div class="b-avatar">SE</div>
+            <div class="b-info"><div class="b-name">Sophie Evans</div><div class="b-service">Nail Tech · 0.4 mi</div><div class="b-rating">★ 4.9 · 132 reviews</div></div>
+            <div class="b-book" style="cursor:default;">4.9 ★</div>
+          </div>
+          <div class="beautician-card">
+            <div class="b-avatar">MA</div>
+            <div class="b-info"><div class="b-name">Mia Adeyemi</div><div class="b-service">Nail Tech · 0.8 mi</div><div class="b-rating">★ 4.8 · 89 reviews</div></div>
+            <div class="b-book" style="cursor:default;">4.9 ★</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEMS -->
+<section class="section-problem">
+  <div class="eyebrow">Sound Familiar?</div>
+  <h2 class="section-headline">The Old Way of Getting <em>Beautiful</em><br>Is Broken</h2>
+  <p class="section-body">Booking beauty treatments shouldn't require planning your entire day around a salon's schedule. Here are the 3 biggest frustrations we're fixing.</p>
+  <div class="problems-grid">
+    <div class="problem-card">
+      <div class="problem-icon">⏰</div>
+      <h3 class="problem-title">The Salon's Hours, Not Yours</h3>
+      <p class="problem-text">You work 9–5. The salon opens at 9 and closes at 5. You're forced to take time off work, cancel plans, or simply go without. Your schedule is an afterthought.</p>
+      <span class="problem-resolve">Book any time, any day →</span>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🚗</div>
+      <h3 class="problem-title">The Commute That Kills the Vibe</h3>
+      <p class="problem-text">Traffic, parking, rushing, running late. By the time you reach the salon, you're stressed — the opposite of how a beauty treatment should feel.</p>
+      <span class="problem-resolve">We come to you instead →</span>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🎲</div>
+      <h3 class="problem-title">The Lottery of Inconsistent Results</h3>
+      <p class="problem-text">Different stylist every time. No continuity. No one who knows your preferences. You cross your fingers and hope for the best — every single visit.</p>
+      <span class="problem-resolve">Vetted, rated beauticians →</span>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section-how" id="how">
+  <div class="inner">
+    <div class="two-col">
+      <div>
+        <div class="eyebrow" style="color:var(--rose)">Effortlessly Simple</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(2rem,3.5vw,2.8rem);font-weight:900;line-height:1.15;color:var(--charcoal);margin-bottom:0.5rem;">Beauty at Your Door<br>in <em style="color:var(--rose);font-style:italic;">Three Steps</em></h2>
+        <div class="how-steps">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><h4>Choose Your Treatment</h4><p>Browse nails, facials, massage, makeup, waxing & more. Filter by location, rating, price, and availability.</p></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><h4>Pick Your Time & Place</h4><p>Set your address — home, hotel, office, anywhere. Select a slot that actually works for your schedule.</p></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><h4>Relax & Look Incredible</h4><p>Your beautician arrives, fully equipped. You get a professional result without leaving your front door.</p></div></div>
+        </div>
+        
+      </div>
+      <div class="how-visual">
+        <div class="stat-row"><div class="stat-box"><div class="stat-num">60+</div><div class="stat-label">Services available</div></div><div class="stat-box"><div class="stat-num">4.9★</div><div class="stat-label">Average rating</div></div></div>
+        <div class="stat-row"><div class="stat-box"><div class="stat-num">45min</div><div class="stat-label">Avg. arrival time</div></div><div class="stat-box"><div class="stat-num">2.4k+</div><div class="stat-label">Happy clients</div></div></div>
+        <div class="map-mock"><div class="map-pins"><div class="map-pin"></div><div class="map-pin"></div><div class="map-pin"></div><div class="map-pin"></div></div><span class="map-label">Beauticians near you right now</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VALUE PROPS -->
+<section class="section-value" id="services">
+  <div class="inner">
+    <div class="header">
+      <div class="eyebrow" style="color:var(--rose)">Why Butify</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(2rem,3.5vw,2.8rem);font-weight:900;line-height:1.15;color:var(--charcoal);">Everything a Salon Offers,<br><em style="color:var(--rose);font-style:italic;">Minus the Hassle</em></h2>
+    </div>
+    <div class="value-grid">
+      <div class="value-card"><div class="value-icon">🔒</div><h3 class="value-title">Vetted & Insured Professionals</h3><p class="value-text">Every beautician is background-checked, professionally qualified, and fully insured. You're in safe, expert hands every time.</p></div>
+      <div class="value-card"><div class="value-icon">📍</div><h3 class="value-title">Any Location, Any Time</h3><p class="value-text">Home, hotel, Airbnb, office — if you can receive a delivery there, we can send a beautician. Early mornings, late evenings, weekends.</p></div>
+      <div class="value-card"><div class="value-icon">💬</div><h3 class="value-title">Real Reviews, Real Accountability</h3><p class="value-text">Every appointment is reviewed. No hidden bad experiences. You see exactly who you're booking before they arrive at your door.</p></div>
+      <div class="value-card"><div class="value-icon">💳</div><h3 class="value-title">Transparent, Upfront Pricing</h3><p class="value-text">No hidden fees. No surprise add-ons. The price you see is the price you pay — including everything your treatment requires.</p></div>
+      <div class="value-card"><div class="value-icon">🔁</div><h3 class="value-title">Book Your Favourite Again</h3><p class="value-text">Found a beautician you love? Book them again with one tap. Build a real relationship with someone who knows exactly how you like things done.</p></div>
+      <div class="value-card"><div class="value-icon">🛡️</div><h3 class="value-title">Butify Guarantee</h3><p class="value-text">Not satisfied? We'll make it right — with a free redo or a full refund. No arguments, no awkward conversations.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section-proof">
+  <div class="proof-inner">
+    <div class="eyebrow" style="color:var(--rose-deep)">Real People, Real Results</div>
+    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(2rem,3.5vw,2.8rem);font-weight:900;line-height:1.15;color:var(--charcoal);max-width:600px;margin:0 auto;">Don't Take Our Word for It</h2>
+    <div class="reviews-row">
+      <div class="review-card"><div class="stars">★★★★★</div><p class="review-text">"I'd been struggling to find time to get my nails done for months. Butify sent someone to my flat on a Sunday evening and the result was absolutely flawless. I'm never going back to a salon."</p><div class="reviewer"><div class="reviewer-av">EH</div><div><div class="reviewer-name">Emma Harrison</div><div class="reviewer-role">Marketing Manager, London</div></div></div></div>
+      <div class="review-card"><div class="stars">★★★★★</div><p class="review-text">"I had a bridal morning and booked three beauticians through Butify for my whole wedding party. They arrived on time, were completely professional, and everyone looked stunning."</p><div class="reviewer"><div class="reviewer-av">RP</div><div><div class="reviewer-name">Riya Patel</div><div class="reviewer-role">Bride, Manchester</div></div></div></div>
+      <div class="review-card"><div class="stars">★★★★★</div><p class="review-text">"As a busy mum, finding time to look after myself felt impossible. Butify changed that. My beautician comes to me during nap time. It's genuinely the best thing I've discovered this year."</p><div class="reviewer"><div class="reviewer-av">CW</div><div><div class="reviewer-name">Charlotte Williams</div><div class="reviewer-role">Mother of two, Birmingham</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOR BEAUTICIANS -->
+<section class="section-beautician">
+  <div class="inner">
+    <div>
+      <div class="eyebrow" style="color:var(--rose)">For Beauty Professionals</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(2rem,3.5vw,2.8rem);font-weight:900;line-height:1.15;color:var(--charcoal);margin-bottom:1rem;">Your Skills. <em style="color:var(--rose);font-style:italic;">Your Hours.</em><br>Your Income.</h2>
+      <p style="font-size:1rem;color:var(--muted);line-height:1.7;font-weight:300;max-width:480px;">Join Butify and take full control of your career. List your services, set your own availability, and keep the majority of what you earn.</p>
+      <div class="beautician-perks">
+        <div class="perk"><div class="perk-check">✓</div><div class="perk-content"><h5>Set Your Own Schedule</h5><p>Open your calendar when you're free. Close it when you're not. No rota, no manager, no pressure.</p></div></div>
+        <div class="perk"><div class="perk-check">✓</div><div class="perk-content"><h5>Keep Up to 85% of Every Booking</h5><p>One of the most competitive rates in the industry. Your expertise earns you, not a salon owner.</p></div></div>
+        <div class="perk"><div class="perk-check">✓</div><div class="perk-content"><h5>Instant Client Access</h5><p>Tap into thousands of clients actively looking for your services — no ad spend needed.</p></div></div>
+      </div>
+    </div>
+    <div class="earnings-card">
+      <div class="earn-label">Your potential earnings</div>
+      <div class="earn-big">£3,200</div>
+      <div class="earn-sub">Estimated monthly, working 20hrs/week</div>
+      <div><div class="earn-row"><span>Nails (8 bookings)</span><span>£960</span></div><div class="earn-bar"><div class="earn-fill" style="width:75%"></div></div></div>
+      <div><div class="earn-row"><span>Facials (6 bookings)</span><span>£840</span></div><div class="earn-bar"><div class="earn-fill" style="width:55%"></div></div></div>
+      <div><div class="earn-row"><span>Makeup (5 bookings)</span><span>£750</span></div><div class="earn-bar"><div class="earn-fill" style="width:45%"></div></div></div>
+      <div style="margin-bottom:2rem"><div class="earn-row"><span>Waxing & other</span><span>£650</span></div><div class="earn-bar"><div class="earn-fill" style="width:35%"></div></div></div>
+      <button class="earn-btn" onclick="showPage('signup')">Join as a Beautician — It's Free</button>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="section-cta">
+  <div class="cta-inner">
+    <div class="eyebrow" style="color:var(--gold)">Join Butify</div>
+    <h2 class="cta-big">Ready to Grow Your<br>Beauty Business <em>Your Way?</em></h2>
+    <p class="cta-sub">List your services, set your own hours, and reach thousands of clients near you. It's completely free to join.</p>
+    <div class="cta-double">
+      <button class="btn-gold" onclick="showPage('signup')">List Your Services — It's Free <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></button>
+    </div>
+    <p style="margin-top:2rem;font-size:0.8rem;color:rgba(255,255,255,0.3);">No subscription required · Free to join · Butify Satisfaction Guarantee</p>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">Buti<span>fy</span></div>
+  <ul class="footer-links">
+    <li><a onclick="scrollToSection('how')">How It Works</a></li>
+    <li><a onclick="showPage('signup')">For Beauticians</a></li>
+    <li><a>Safety</a></li><li><a>Privacy</a></li><li><a>Terms</a></li>
+  </ul>
+  <div class="footer-copy">© 2025 Butify. All rights reserved.</div>
+</footer>
+
+</div><!-- end page-landing -->
+
+
+<!-- ===================== SIGNUP PAGE ===================== -->
+<div id="page-signup" class="page">
+<nav>
+  <div class="logo" onclick="showPage('landing')">Buti<span>fy</span></div>
+  <button class="nav-back-btn" onclick="showPage('landing')">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+    Back to home
+  </button>
+</nav>
+<div class="signup-wrap">
+  <div class="left-panel">
+    <div class="panel-content">
+      <div class="panel-tag">✦ For Professionals</div>
+      <h2 class="panel-headline">Build Your Beauty<br>Business <em>Your Way</em></h2>
+      <p class="panel-sub">Join hundreds of beauticians already earning more, working flexibly, and growing their client base through Butify.</p>
+      <div class="panel-perks">
+        <div class="panel-perk"><div class="perk-icon">💰</div>Keep up to 85% of every booking</div>
+        <div class="panel-perk"><div class="perk-icon">🗓️</div>Set your own hours — no rota, no manager</div>
+        <div class="panel-perk"><div class="perk-icon">📍</div>Choose which areas you work in</div>
+        <div class="panel-perk"><div class="perk-icon">⭐</div>Get discovered by thousands of local clients</div>
+        <div class="panel-perk"><div class="perk-icon">🛡️</div>Full insurance support included</div>
+      </div>
+      <div class="panel-divider"></div>
+      <div class="panel-stat-row">
+        <div class="panel-stat"><div class="panel-stat-num">£3.2k</div><div class="panel-stat-label">Avg monthly earnings</div></div>
+        <div class="panel-stat"><div class="panel-stat-num">480+</div><div class="panel-stat-label">Active beauticians</div></div>
+        <div class="panel-stat"><div class="panel-stat-num">4.9★</div><div class="panel-stat-label">Platform rating</div></div>
+        <div class="panel-stat"><div class="panel-stat-num">Free</div><div class="panel-stat-label">To join & list</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <div class="form-header">
+      <div class="form-eyebrow">Join Butify as a Professional</div>
+      <h1 class="form-title">Create Your Beautician Profile</h1>
+      <p class="form-subtitle">Takes about 5 minutes. Your profile goes live within 24 hours of approval.</p>
+    </div>
+    <div class="progress-wrap" id="progress">
+      <div class="step-pill active" id="pill-1">1 · Personal Info</div>
+      <div class="step-connector"></div>
+      <div class="step-pill inactive" id="pill-2">2 · Services</div>
+      <div class="step-connector"></div>
+      <div class="step-pill inactive" id="pill-3">3 · Availability</div>
+      <div class="step-connector"></div>
+      <div class="step-pill inactive" id="pill-4">4 · Final Details</div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="form-section active" id="fstep-1">
+      <div class="section-label">Personal Information</div>
+      <div class="field-row">
+        <div class="field"><label>First Name <span class="req">*</span></label><input type="text" placeholder="e.g. Sophie" id="f-firstname"></div>
+        <div class="field"><label>Last Name <span class="req">*</span></label><input type="text" placeholder="e.g. Evans" id="f-lastname"></div>
+      </div>
+      <div class="field-row single"><div class="field"><label>Email Address <span class="req">*</span></label><input type="email" placeholder="you@example.com" id="f-email"></div></div>
+      <div class="field-row">
+        <div class="field"><label>Phone Number <span class="req">*</span></label><input type="tel" placeholder="+44 7700 000000" id="f-phone"></div>
+        <div class="field"><label>Date of Birth <span class="req">*</span></label><input type="text" placeholder="DD / MM / YYYY" id="f-dob"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>City / Town <span class="req">*</span></label><input type="text" placeholder="e.g. Manchester" id="f-city"></div>
+        <div class="field"><label>Postcode <span class="req">*</span></label><input type="text" placeholder="e.g. M1 1AE" id="f-postcode"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>How far will you travel?</label><select id="f-travel"><option value="">Select distance</option><option>Up to 5 miles</option><option>Up to 10 miles</option><option>Up to 15 miles</option><option>Up to 25 miles</option><option>Anywhere in my city</option></select></div>
+        <div class="field"><label>Years of Experience <span class="req">*</span></label><select id="f-experience"><option value="">Select</option><option>Less than 1 year</option><option>1–2 years</option><option>3–5 years</option><option>6–10 years</option><option>10+ years</option></select></div>
+      </div>
+      <div class="field-row single"><div class="field"><label>Professional Qualification</label><input type="text" placeholder="e.g. NVQ Level 3, City & Guilds"></div></div>
+      <div class="field-row single"><div class="field"><label>Tell clients about yourself <span class="req">*</span></label><textarea placeholder="Describe your experience" id="f-bio" id="f-bio" placeholder="Describe your experience, specialisms, and what makes you great at what you do..."></textarea><div class="field-hint">This appears on your public profile. Make it warm, professional and specific.</div></div></div>
+      <div class="btn-row"><span></span><button class="btn-next" onclick="goToStep(2)">Continue — Services <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></button></div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="form-section" id="fstep-2">
+      <div class="section-label">Services You Offer</div>
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1.2rem;font-weight:300;">Select all that apply.</p>
+      <div class="services-grid">
+        <div class="service-toggle"><input type="checkbox" id="s1"><label for="s1"><span class="svc-icon">💅</span>Nails & Manicure</label></div>
+        <div class="service-toggle"><input type="checkbox" id="s2"><label for="s2"><span class="svc-icon">🦶</span>Pedicure</label></div>
+        <div class="service-toggle"><input type="checkbox" id="s3"><label for="s3"><span class="svc-icon">👁️</span>Lash Extensions</label></div>
+        <div class="service-toggle"><input type="checkbox" id="s4"><label for="s4"><span class="svc-icon">✨</span>Brows & Tinting</label></div>
+        <div class="service-toggle"><input type="checkbox" id="s5"><label for="s5"><span class="svc-icon">💄</span>Makeup & Glam</label></div>
+        <div class="service-toggle"><input type="checkbox" id="s6"><label for="s6"><span class="svc-icon">🌿</span>Facials & Skincare</label></div>
+        <div class="service-toggle"><input type="checkbox" id="s7"><label for="s7"><span class="svc-icon">🕯️</span>Waxing</label></div>
+        <div class="service-toggle"><input type="checkbox" id="s8"><label for="s8"><span class="svc-icon">🙌</span>Massage</label></div>
+        <div class="service-toggle"><input type="checkbox" id="s9"><label for="s9"><span class="svc-icon">💇</span>Hair Styling</label></div>
+        <div class="service-toggle"><input type="checkbox" id="s10"><label for="s10"><span class="svc-icon">👑</span>Wig Install & Styling</label></div>
+        <div class="service-toggle"><input type="checkbox" id="s11"><label for="s11"><span class="svc-icon">🌀</span>Braids & Locs</label></div>
+        <div class="service-toggle"><input type="checkbox" id="s12"><label for="s12"><span class="svc-icon">🎨</span>Hair Colouring</label></div>
+      </div>
+      <div class="section-label" style="margin-top:1.5rem;">Pricing</div>
+      <div class="field-row">
+        <div class="field"><label>Starting Rate (per hour)</label><div class="rate-wrap"><span class="rate-prefix">£</span><input type="number" placeholder="0.00" min="0" step="5" id="f-rate"></div><div class="field-hint">Your minimum rate. Per-service pricing can be set later.</div></div>
+        <div class="field"><label>Call-Out Fee (if applicable)</label><div class="rate-wrap"><span class="rate-prefix">£</span><input type="number" placeholder="0.00" min="0" step="1" id="f-callout"></div><div class="field-hint">Leave at 0 if travel is included in your price.</div></div>
+      </div>
+      <div class="field-row single"><div class="field"><label>Additional specialisms or service details</label><textarea id="f-servicedetails" id="f-servicedetails" placeholder="e.g. I specialise in bridal makeup and have worked on 40+ weddings..." style="min-height:80px;"></textarea></div></div>
+      <div class="btn-row">
+        <button class="btn-back-form" onclick="goToStep(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg> Back</button>
+        <button class="btn-next" onclick="goToStep(3)">Continue — Availability <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="form-section" id="fstep-3">
+      <div class="section-label">Days You're Available</div>
+      <div class="days-grid">
+        <div class="day-toggle"><input type="checkbox" id="d1"><label for="d1">Mon</label></div>
+        <div class="day-toggle"><input type="checkbox" id="d2"><label for="d2">Tue</label></div>
+        <div class="day-toggle"><input type="checkbox" id="d3"><label for="d3">Wed</label></div>
+        <div class="day-toggle"><input type="checkbox" id="d4"><label for="d4">Thu</label></div>
+        <div class="day-toggle"><input type="checkbox" id="d5"><label for="d5">Fri</label></div>
+        <div class="day-toggle"><input type="checkbox" id="d6"><label for="d6">Sat</label></div>
+        <div class="day-toggle"><input type="checkbox" id="d7"><label for="d7">Sun</label></div>
+      </div>
+      <div class="section-label" style="margin-top:1.5rem;">Working Hours</div>
+      <div class="field-row">
+        <div class="field"><label>Earliest Start Time</label><select id="f-starttime"><option value="">Select</option><option>6:00 AM</option><option>7:00 AM</option><option>8:00 AM</option><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>12:00 PM</option></select></div>
+        <div class="field"><label>Latest Finish Time</label><select id="f-endtime"><option value="">Select</option><option>4:00 PM</option><option>5:00 PM</option><option>6:00 PM</option><option>7:00 PM</option><option>8:00 PM</option><option>9:00 PM</option><option>10:00 PM</option></select></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Minimum booking notice</label><select id="f-notice"><option value="">Select</option><option>Same day / On demand</option><option>At least 2 hours ahead</option><option>At least 4 hours ahead</option><option>At least 24 hours ahead</option><option>At least 48 hours ahead</option></select></div>
+        <div class="field"><label>Typical appointment length</label><select id="f-apptlength"><option value="">Select</option><option>30 minutes</option><option>45 minutes</option><option>1 hour</option><option>1.5 hours</option><option>2+ hours</option><option>Varies by service</option></select></div>
+      </div>
+      <div class="field-row single"><div class="field"><label>Schedule notes for clients</label><textarea id="f-availnotes" id="f-availnotes" placeholder="e.g. Available early mornings from 6am on request. Can accommodate bridal bookings with advance notice..." style="min-height:80px;"></textarea></div></div>
+      <div class="btn-row">
+        <button class="btn-back-form" onclick="goToStep(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg> Back</button>
+        <button class="btn-next" onclick="goToStep(4)">Continue — Final Details <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></button>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="form-section" id="fstep-4">
+      <div class="section-label">Profile Photo</div>
+      <div class="photo-upload" id="photo-drop">
+        <input type="file" accept="image/*" onchange="document.getElementById('photo-drop').querySelector('.upload-icon').textContent='✅'; document.getElementById('photo-drop').querySelector('.upload-text').innerHTML='<strong>Photo uploaded!</strong>'">
+        <div class="upload-icon">📸</div>
+        <p class="upload-text"><strong>Click to upload</strong> or drag and drop your photo</p>
+        <p class="upload-text" style="font-size:0.75rem;margin-top:4px;">JPG or PNG · Min 400×400px · Max 5MB</p>
+      </div>
+      <div class="section-label" style="margin-top:1.5rem;">Portfolio / Work Photos (Optional)</div>
+      <div class="photo-upload" id="portfolio-drop" onclick="document.getElementById('portfolio-input').click()" style="cursor:pointer;">
+        <input type="file" id="portfolio-input" accept="image/*" multiple style="display:none;" onchange="handlePortfolioUpload(this)">
+        <div class="upload-icon" id="portfolio-icon">🖼️</div>
+        <p class="upload-text" id="portfolio-text"><strong>Click to upload examples of your work</strong></p>
+        <p class="upload-text" style="font-size:0.75rem;margin-top:4px;" id="portfolio-hint">Up to 8 photos · JPG or PNG · Clients love seeing your work</p>
+        <div id="portfolio-preview" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:1rem;justify-content:center;"></div>
+      </div>
+      <div class="section-label" style="margin-top:1.5rem;">Social Media & Portfolio Links</div>
+      <div class="social-row"><span class="social-icon">📸</span><input type="url" placeholder="Instagram profile URL (optional)" id="f-instagram"></div>
+      <div class="social-row"><span class="social-icon">🎵</span><input type="url" placeholder="TikTok profile URL (optional)" id="f-tiktok"></div>
+      <div class="social-row"><span class="social-icon">🌐</span><input type="url" placeholder="Personal website or booking page (optional)" id="f-website"></div>
+      <div class="section-label" style="margin-top:1.5rem;">How Did You Hear About Butify?</div>
+      <div class="field-row single"><div class="field"><select id="f-referral"><option value="">Select an option</option><option>Instagram / Social Media</option><option>TikTok</option><option>Google Search</option><option>Recommended by a friend or colleague</option><option>Flyer / Leaflet</option><option>Other</option></select></div></div>
+      <div class="consent-row"><input type="checkbox" id="terms-check"><p class="consent-text">I agree to Butify's <a>Terms & Conditions</a> and <a>Privacy Policy</a>. I confirm I hold valid professional qualifications and insurance for the services I have listed.</p></div>
+      <div class="consent-row"><input type="checkbox"><p class="consent-text">I'd like to receive tips, updates, and offers from Butify by email. (Optional)</p></div>
+      <div class="btn-row">
+        <button class="btn-back-form" onclick="goToStep(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg> Back</button>
+        <button class="btn-next" style="background:var(--success);box-shadow:0 8px 25px rgba(45,155,111,0.3);" onclick="submitSignup()">Submit Application ✦</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-screen" id="signup-success">
+      <div class="success-icon">✅</div>
+      <h2 class="success-title">You're on your way!</h2>
+      <p class="success-sub">Your Butify beautician application has been submitted. Our team will review your profile and be in touch within 24 hours.</p>
+      <div class="next-steps">
+        <div class="next-step-title">What happens next</div>
+        <div class="next-step-item"><div class="ns-num">1</div><p class="ns-text"><strong>Profile review</strong> — Our team checks your qualifications and info within 24 hours.</p></div>
+        <div class="next-step-item"><div class="ns-num">2</div><p class="ns-text"><strong>Welcome email</strong> — Once approved, you'll get login details and a link to complete your full profile.</p></div>
+        <div class="next-step-item"><div class="ns-num">3</div><p class="ns-text"><strong>Go live</strong> — Set your availability and start accepting bookings from clients near you.</p></div>
+      </div>
+      <button class="btn-home" onclick="showPage('landing')">Back to Butify Home <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></button>
+    </div>
+  </div>
+</div>
+</div><!-- end page-signup -->
+
+
+
+<script>
+  // Clear errors as user fills in fields
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('#page-signup input, #page-signup select, #page-signup textarea').forEach(el => {
+      el.addEventListener('input', () => clearError(el));
+      el.addEventListener('change', () => clearError(el));
+    });
+  });
+
+  function handlePortfolioUpload(input) {
+    const files = Array.from(input.files).slice(0, 8);
+    if (!files.length) return;
+    const preview = document.getElementById("portfolio-preview");
+    const icon = document.getElementById("portfolio-icon");
+    const text = document.getElementById("portfolio-text");
+    const hint = document.getElementById("portfolio-hint");
+    preview.innerHTML = "";
+    icon.style.display = "none";
+    text.innerHTML = "<strong>" + files.length + " photo" + (files.length > 1 ? "s" : "") + " selected 2705</strong>";
+    hint.textContent = "Click to change selection";
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.createElement("img");
+        img.src = e.target.result;
+        img.style.cssText = "width:70px;height:70px;object-fit:cover;border-radius:10px;border:2px solid var(--rose-light);";
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function scrollToSection(id) {
+    showPage('landing');
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }, 50);
+  }
+
+  function showError(el, msg) {
+    el.style.borderColor = 'var(--rose)';
+    el.style.boxShadow = '0 0 0 3px rgba(201,83,106,0.15)';
+    let err = el.parentElement.querySelector('.val-error');
+    if (!err) {
+      err = document.createElement('p');
+      err.className = 'val-error';
+      err.style.cssText = 'color:var(--rose);font-size:0.75rem;margin-top:4px;font-weight:500;';
+      el.parentElement.appendChild(err);
+    }
+    err.textContent = msg;
+  }
+
+  function clearError(el) {
+    el.style.borderColor = '';
+    el.style.boxShadow = '';
+    const err = el.parentElement.querySelector('.val-error');
+    if (err) err.remove();
+  }
+
+  function validateStep(step) {
+    let valid = true;
+    let firstBad = null;
+
+    function check(id, msg) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const val = el.value.trim();
+      if (!val || val === '') {
+        showError(el, msg);
+        if (!firstBad) firstBad = el;
+        valid = false;
+      } else {
+        clearError(el);
+      }
+    }
+
+    function checkEmail(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const val = el.value.trim();
+      const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+      if (!ok) {
+        showError(el, 'Please enter a valid email address');
+        if (!firstBad) firstBad = el;
+        valid = false;
+      } else {
+        clearError(el);
+      }
+    }
+
+    if (step === 1) {
+      check('f-firstname', 'Please enter your first name');
+      check('f-lastname', 'Please enter your last name');
+      checkEmail('f-email');
+      check('f-phone', 'Please enter your phone number');
+      check('f-dob', 'Please enter your date of birth');
+      check('f-city', 'Please enter your city or town');
+      check('f-postcode', 'Please enter your postcode');
+      check('f-experience', 'Please select your years of experience');
+      check('f-bio', 'Please write a short bio for your profile');
+    }
+
+    if (step === 2) {
+      // At least one service must be selected
+      const anyService = [1,2,3,4,5,6,7,8,9,10,11,12].some(i => {
+        const el = document.getElementById('s' + i);
+        return el && el.checked;
+      });
+      const grid = document.querySelector('.services-grid');
+      let svcErr = document.getElementById('svc-error');
+      if (!anyService) {
+        if (!svcErr) {
+          svcErr = document.createElement('p');
+          svcErr.id = 'svc-error';
+          svcErr.style.cssText = 'color:var(--rose);font-size:0.82rem;font-weight:600;margin-bottom:1rem;padding:0.7rem 1rem;background:var(--rose-light);border-radius:10px;';
+          svcErr.textContent = '⚠ Please select at least one service you offer';
+          grid.parentElement.insertBefore(svcErr, grid);
+        }
+        if (!firstBad) firstBad = grid;
+        valid = false;
+      } else {
+        if (svcErr) svcErr.remove();
+      }
+
+      // Hourly rate required
+      check('f-rate', 'Please enter your starting hourly rate');
+    }
+
+    if (step === 3) {
+      // At least one day selected
+      const anyDay = [1,2,3,4,5,6,7].some(i => {
+        const el = document.getElementById('d' + i);
+        return el && el.checked;
+      });
+      const daysGrid = document.querySelector('.days-grid');
+      let dayErr = document.getElementById('day-error');
+      if (!anyDay) {
+        if (!dayErr) {
+          dayErr = document.createElement('p');
+          dayErr.id = 'day-error';
+          dayErr.style.cssText = 'color:var(--rose);font-size:0.82rem;font-weight:600;margin-bottom:1rem;padding:0.7rem 1rem;background:var(--rose-light);border-radius:10px;';
+          dayErr.textContent = '⚠ Please select at least one day you are available';
+          daysGrid.parentElement.insertBefore(dayErr, daysGrid);
+        }
+        if (!firstBad) firstBad = daysGrid;
+        valid = false;
+      } else {
+        if (dayErr) dayErr.remove();
+      }
+
+      check('f-starttime', 'Please select your earliest start time');
+      check('f-endtime', 'Please select your latest finish time');
+    }
+
+    if (firstBad) {
+      firstBad.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return valid;
+  }
+
+  function goToStep(n) {
+    // If going forward, validate current step first
+    const current = [1,2,3,4].find(i => document.getElementById('fstep-' + i).classList.contains('active'));
+    if (n > current && !validateStep(current)) return;
+
+    const labels = ['Personal Info', 'Services', 'Availability', 'Final Details'];
+    for (let i = 1; i <= 4; i++) {
+      document.getElementById('fstep-' + i).classList.remove('active');
+      const pill = document.getElementById('pill-' + i);
+      if (i < n) {
+        pill.className = 'step-pill done';
+        pill.textContent = '✓ ' + labels[i-1];
+      } else if (i === n) {
+        pill.className = 'step-pill active';
+        pill.textContent = i + ' · ' + labels[i-1];
+      } else {
+        pill.className = 'step-pill inactive';
+        pill.textContent = i + ' · ' + labels[i-1];
+      }
+    }
+    document.getElementById('fstep-' + n).classList.add('active');
+    document.querySelector('#page-signup .right-panel').scrollTop = 0;
+  }
+
+  async function submitSignup() {
+    const terms = document.getElementById('terms-check');
+    if (!terms.checked) {
+      terms.style.outline = '2px solid var(--rose)';
+      terms.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    // Gather all field values
+    const fields = document.querySelectorAll('#page-signup input, #page-signup select, #page-signup textarea');
+    const data = {};
+
+    // Named fields
+    const named = {
+      'first-name': document.getElementById('f-firstname'),
+      'last-name': document.getElementById('f-lastname'),
+      'email': document.getElementById('f-email'),
+      'phone': document.getElementById('f-phone'),
+      'dob': document.getElementById('f-dob'),
+      'city': document.getElementById('f-city'),
+      'postcode': document.getElementById('f-postcode'),
+      'travel-radius': document.getElementById('f-travel'),
+      'experience': document.getElementById('f-experience'),
+      'qualification': document.getElementById('f-qualification'),
+      'bio': document.getElementById('f-bio'),
+      'hourly-rate': document.getElementById('f-rate'),
+      'callout-fee': document.getElementById('f-callout'),
+      'service-details': document.getElementById('f-servicedetails'),
+      'start-time': document.getElementById('f-starttime'),
+      'end-time': document.getElementById('f-endtime'),
+      'notice': document.getElementById('f-notice'),
+      'appt-length': document.getElementById('f-apptlength'),
+      'avail-notes': document.getElementById('f-availnotes'),
+      'instagram': document.getElementById('f-instagram'),
+      'tiktok': document.getElementById('f-tiktok'),
+      'website': document.getElementById('f-website'),
+      'referral': document.getElementById('f-referral'),
+    };
+
+    for (const [key, el] of Object.entries(named)) {
+      if (el) data[key] = el.value;
+    }
+
+    // Services checkboxes
+    const serviceLabels = ['Nails & Manicure','Pedicure','Lash Extensions','Brows & Tinting','Makeup & Glam','Facials & Skincare','Waxing','Massage','Hair Styling','Wig Install & Styling','Braids & Locs','Hair Colouring'];
+    const selectedServices = [];
+    for (let i = 1; i <= 12; i++) {
+      const el = document.getElementById('s' + i);
+      if (el && el.checked) selectedServices.push(serviceLabels[i-1]);
+    }
+    data['services'] = selectedServices.join(', ') || 'None selected';
+
+    // Days checkboxes
+    const dayLabels = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    const selectedDays = [];
+    for (let i = 1; i <= 7; i++) {
+      const el = document.getElementById('d' + i);
+      if (el && el.checked) selectedDays.push(dayLabels[i-1]);
+    }
+    data['available-days'] = selectedDays.join(', ') || 'None selected';
+
+    // Show loading state
+    const submitBtn = document.querySelector('#fstep-4 .btn-next:last-child');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = 'Sending... ⏳';
+    submitBtn.disabled = true;
+
+    try {
+      const response = await fetch('https://formspree.io/f/xaqzjepj', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        document.getElementById('progress').style.display = 'none';
+        for (let i = 1; i <= 4; i++) document.getElementById('fstep-' + i).classList.remove('active');
+        document.getElementById('signup-success').classList.add('show');
+        document.querySelector('#page-signup .right-panel').scrollTop = 0;
+      } else {
+        const json = await response.json();
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+        alert('Something went wrong: ' + (json.error || 'Please try again or email info@butify.com directly.'));
+      }
+    } catch (err) {
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
+      alert('Network error. Please check your connection and try again.');
+    }
+  }
+</script>
+
+</body>
+</html>
